@@ -1,8 +1,15 @@
 import axios from "axios";
 import { loadEnvironmentAndVerifyEnvVars } from "./utils";
 import { SupertokensSync } from "./types";
+import * as fs from "fs";
+import * as path from "path";
+import z from "zod";
 
 export class SupertokensService {
+    private static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
+    private static readonly defaultConfig = {
+        logLevel: "info",
+    } satisfies SupertokensSync.Config;
     private coreApiEndpoints = {
         getAllRoles: "recipe/roles",
         getAllUsersWithRole: (role: string) => `recipe/role/users?role=${role}`,
@@ -14,10 +21,10 @@ export class SupertokensService {
             `recipe/user/metadata?userId=${userId}`,
     };
     private envVars: SupertokensSync.EnvVars;
-    private debug = false;
+    private config: SupertokensSync.Config;
 
-    constructor(config: SupertokensSync.Config = {}) {
-        this.debug = config.debug || false;
+    constructor() {
+        this.config = this.loadConfigFile();
         this.envVars = loadEnvironmentAndVerifyEnvVars();
     }
 
@@ -78,6 +85,42 @@ export class SupertokensService {
         );
 
         return rolesWithPermissions;
+    }
+
+    private loadConfigFile(): SupertokensSync.Config {
+        const configPath = path.resolve(
+            process.cwd(),
+            SupertokensService.CONFIG_FILE_NAME
+        );
+
+        if (!fs.existsSync(configPath)) {
+            fs.writeFileSync(
+                configPath,
+                JSON.stringify(SupertokensService.defaultConfig, null, 4)
+            );
+            console.info(
+                `📑 No config file found. Created default config at '${configPath}'.`
+            );
+        }
+
+        const configSchema = z.object({
+            logLevel: z.enum(["debug", "info"]),
+        });
+        type ConfigSchema = z.infer<typeof configSchema>;
+        (function (_: SupertokensSync.Config) {})({} as ConfigSchema); // Type guard
+
+        const configFile = fs.readFileSync(configPath, "utf8");
+        const rawConfig = JSON.parse(configFile);
+
+        try {
+            return configSchema.parse(rawConfig);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                console.error("❌ Invalid configuration error:", error.errors);
+                process.exit(1);
+            }
+            throw error;
+        }
     }
 
     private getApiKeysForEnvironment(environment: SupertokensSync.Environment) {
@@ -166,7 +209,7 @@ export class SupertokensService {
         }
 
         if (!result.isInSync) {
-            if (this.debug) {
+            if (this.config.logLevel === "debug") {
                 if (result.missingInSetA.length > 0) {
                     console.warn(
                         "⏸️ Roles missing in set A (dev):",

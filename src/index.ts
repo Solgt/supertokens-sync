@@ -1,9 +1,7 @@
 import { SupertokensService } from "./SupertokensService";
 
 async function main() {
-    const service = new SupertokensService({
-        debug: true,
-    });
+    const service = new SupertokensService();
 
     const rolesDev = await service.getAllRoles("dev");
 

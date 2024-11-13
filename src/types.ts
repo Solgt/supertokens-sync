@@ -1,6 +1,6 @@
 export namespace SupertokensSync {
     export type Config = {
-        debug?: boolean;
+        logLevel: "debug" | "info";
     };
     export type EnvVars = {
         ST_API_KEY_DEV: string;
