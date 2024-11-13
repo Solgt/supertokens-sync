@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+
 export function loadEnvironmentAndVerifyEnvVars() {
     let ST_API_KEY_DEV;
     let ST_CONNECTION_URI_DEV;
@@ -26,20 +28,22 @@ export function loadEnvironmentAndVerifyEnvVars() {
         !ST_API_KEY_PROD ||
         !ST_CONNECTION_URI_PROD
     ) {
-        console.error("Missing environment variables");
+        console.error(
+            "❌ Error: Missing environment variables. Expected to have AUTH_SUPERTOKENS_API_KEY and AUTH_SUPERTOKENS_CONNECTION_URI in local .env and .env.production files."
+        );
         process.exit(1);
     }
 
     if (!ST_CONNECTION_URI_DEV.startsWith("https://st-dev")) {
         console.error(
-            "Invalid connection URI for development environment. Expected to start with https://st-dev"
+            "❌ Error: Invalid connection URI for development environment. Expected to start with 'https://st-dev'."
         );
         process.exit(1);
     }
 
     if (!ST_CONNECTION_URI_PROD.startsWith("https://st-prod")) {
         console.error(
-            "Invalid connection URI for production environment. Expected to start with https://st-prod"
+            "❌ Error: Invalid connection URI for production environment. Expected to start with 'https://st-prod'."
         );
         process.exit(1);
     }
