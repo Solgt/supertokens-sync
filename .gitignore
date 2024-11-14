@@ -7,6 +7,7 @@
 
 # testing
 /coverage
+test.ts
 
 # next.js
 /.next/
@@ -52,3 +53,6 @@ build-storybook.log
 
 # prisma
 /prisma/generated/
+
+# out
+supertokensAuthConfig.ts

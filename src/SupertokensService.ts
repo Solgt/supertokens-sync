@@ -4,11 +4,21 @@ import { SupertokensSync } from "./types";
 import * as fs from "fs";
 import * as path from "path";
 import z from "zod";
+import { WriterService } from "./WriterService";
 
 export class SupertokensService {
     private static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
     private static readonly defaultConfig = {
         logLevel: "info",
+        mode: "sync",
+        outputExtension: ".ts",
+        outputPath: "./",
+        outputFileName: "supertokensAuthConfig",
+        priority: "prod",
+        envKeyNames: {
+            connectionUri: "SUPERTOKENS_CONNECTION_URI",
+            apiKey: "SUPERTOKENS_API_KEY",
+        },
     } satisfies SupertokensSync.Config;
     private coreApiEndpoints = {
         getAllRoles: "recipe/roles",
@@ -25,7 +35,74 @@ export class SupertokensService {
 
     constructor() {
         this.config = this.loadConfigFile();
-        this.envVars = loadEnvironmentAndVerifyEnvVars();
+        this.envVars = loadEnvironmentAndVerifyEnvVars(this.config.envKeyNames);
+    }
+
+    getMode() {
+        return this.config.mode;
+    }
+
+    async generateAuthConfig({
+        rolesWithPermissions,
+    }: {
+        rolesWithPermissions: SupertokensSync.RoleWithPermissions[];
+    }) {
+        const preparation = this.prepareWritePayload({ rolesWithPermissions });
+        await this.writeToFile({ preparation });
+    }
+
+    prepareWritePayload({
+        rolesWithPermissions,
+    }: {
+        rolesWithPermissions: SupertokensSync.RoleWithPermissions[];
+    }): SupertokensSync.RolePermissionsWritingPreparation {
+        const roles = Array.from(
+            new Set(rolesWithPermissions.map((role) => role.role))
+        );
+        const permissions = Array.from(
+            new Set(rolesWithPermissions.map((role) => role.permissions).flat())
+        );
+        return {
+            roles,
+            permissions,
+            rolesWithPermissions,
+        };
+    }
+
+    controlRolesAndPermissions({
+        comparisonResult,
+        rolesA,
+        rolesB,
+    }: {
+        comparisonResult: SupertokensSync.RoleComparisonResult;
+        rolesA: SupertokensSync.RoleWithPermissions[];
+        rolesB: SupertokensSync.RoleWithPermissions[];
+    }) {
+        const prioritySet = this.getPrioritySet(comparisonResult);
+        const selectedRoles = prioritySet === "dev" ? rolesA : rolesB;
+        return selectedRoles;
+    }
+
+    private getPrioritySet(
+        comparisonResult: SupertokensSync.RoleComparisonResult
+    ) {
+        if (!comparisonResult.isInSync) {
+            console.info(
+                `⚠️ Warn: Roles are not in sync. Priority set to '${this.config.priority}'.`
+            );
+            return this.config.priority;
+        } else {
+            return "prod";
+        }
+    }
+
+    private async writeToFile({
+        preparation,
+    }: {
+        preparation: SupertokensSync.RolePermissionsWritingPreparation;
+    }) {
+        const writerService = new WriterService(this.config);
+        await writerService.write({ preparation });
     }
 
     async getAllRoles(
@@ -87,70 +164,7 @@ export class SupertokensService {
         return rolesWithPermissions;
     }
 
-    private loadConfigFile(): SupertokensSync.Config {
-        const configPath = path.resolve(
-            process.cwd(),
-            SupertokensService.CONFIG_FILE_NAME
-        );
-
-        if (!fs.existsSync(configPath)) {
-            fs.writeFileSync(
-                configPath,
-                JSON.stringify(SupertokensService.defaultConfig, null, 4)
-            );
-            console.info(
-                `📑 No config file found. Created default config at '${configPath}'.`
-            );
-        }
-
-        const configSchema = z.object({
-            logLevel: z.enum(["debug", "info"]),
-        });
-        type ConfigSchema = z.infer<typeof configSchema>;
-        (function (_: SupertokensSync.Config) {})({} as ConfigSchema); // Type guard
-
-        const configFile = fs.readFileSync(configPath, "utf8");
-        const rawConfig = JSON.parse(configFile);
-
-        try {
-            return configSchema.parse(rawConfig);
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                console.error("❌ Invalid configuration error:", error.errors);
-                process.exit(1);
-            }
-            throw error;
-        }
-    }
-
-    private getApiKeysForEnvironment(environment: SupertokensSync.Environment) {
-        if (environment === "dev") {
-            return {
-                ST_CONNECTION_URI: this.envVars.ST_CONNECTION_URI_DEV,
-                ST_API_KEY: this.envVars.ST_API_KEY_DEV,
-            };
-        } else {
-            return {
-                ST_CONNECTION_URI: this.envVars.ST_CONNECTION_URI_PROD,
-                ST_API_KEY: this.envVars.ST_API_KEY_PROD,
-            };
-        }
-    }
-    /**
-     * Sorts roles and permissions alphabetically.
-     */
-    private sortRoles(
-        roles: SupertokensSync.RoleWithPermissions[]
-    ): SupertokensSync.RoleWithPermissions[] {
-        return roles
-            .map((role) => ({
-                ...role,
-                permissions: [...role.permissions].sort(),
-            }))
-            .sort((a, b) => a.role.localeCompare(b.role));
-    }
-
-    compareRoles({
+    compareRolesAndPermissions({
         rolesA,
         rolesB,
     }: {
@@ -253,5 +267,77 @@ export class SupertokensService {
         );
 
         return { onlyInA, onlyInB, common };
+    }
+
+    private loadConfigFile(): SupertokensSync.Config {
+        const configPath = path.resolve(
+            process.cwd(),
+            SupertokensService.CONFIG_FILE_NAME
+        );
+
+        if (!fs.existsSync(configPath)) {
+            fs.writeFileSync(
+                configPath,
+                JSON.stringify(SupertokensService.defaultConfig, null, 4)
+            );
+            console.info(
+                `📑 No config file found. Created default config at '${configPath}'.`
+            );
+        }
+
+        const configSchema = z.object({
+            logLevel: z.enum(["debug", "info"]),
+            mode: z.enum(["verify", "sync"]),
+            outputExtension: z.enum([".json", ".ts"]),
+            outputPath: z.string(),
+            outputFileName: z.string(),
+            priority: z.enum(["dev", "prod"]),
+            envKeyNames: z.object({
+                connectionUri: z.string(),
+                apiKey: z.string(),
+            }),
+        });
+        type ConfigSchema = z.infer<typeof configSchema>;
+        (function (_: SupertokensSync.Config) {})({} as ConfigSchema); // Type guard
+
+        const configFile = fs.readFileSync(configPath, "utf8");
+        const rawConfig = JSON.parse(configFile);
+
+        try {
+            return configSchema.parse(rawConfig);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                console.error("❌ Invalid configuration error:", error.errors);
+                process.exit(1);
+            }
+            throw error;
+        }
+    }
+
+    private getApiKeysForEnvironment(environment: SupertokensSync.Environment) {
+        if (environment === "dev") {
+            return {
+                ST_CONNECTION_URI: this.envVars.ST_CONNECTION_URI_DEV,
+                ST_API_KEY: this.envVars.ST_API_KEY_DEV,
+            };
+        } else {
+            return {
+                ST_CONNECTION_URI: this.envVars.ST_CONNECTION_URI_PROD,
+                ST_API_KEY: this.envVars.ST_API_KEY_PROD,
+            };
+        }
+    }
+    /**
+     * Sorts roles and permissions alphabetically.
+     */
+    private sortRoles(
+        roles: SupertokensSync.RoleWithPermissions[]
+    ): SupertokensSync.RoleWithPermissions[] {
+        return roles
+            .map((role) => ({
+                ...role,
+                permissions: [...role.permissions].sort(),
+            }))
+            .sort((a, b) => a.role.localeCompare(b.role));
     }
 }

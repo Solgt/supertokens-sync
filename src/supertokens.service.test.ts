@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
 import dotenv from "dotenv";
+import fs from "fs";
 import { SupertokensService } from "./SupertokensService";
 import { loadEnvironmentAndVerifyEnvVars } from "./utils";
 
+vi.mock("fs");
 vi.mock("axios");
 vi.mock("dotenv");
 vi.mock("./utils");
@@ -19,6 +21,24 @@ describe("SupertokensService", () => {
             ST_API_KEY_PROD: "test-api-key-prod",
             ST_CONNECTION_URI_PROD: "https://st-prod.example.com",
         });
+        /**
+         * Simulate the existence of a config file
+         */
+        vi.mocked(fs.existsSync).mockReturnValue(true);
+        vi.mocked(fs.readFileSync).mockReturnValue(
+            JSON.stringify({
+                logLevel: "info",
+                mode: "sync",
+                outputExtension: ".ts",
+                outputPath: "./",
+                outputFileName: "supertokensAuth",
+                priority: "prod",
+                envKeyNames: {
+                    connectionUri: "AUTH_ST_CONNECTION_URI",
+                    apiKey: "AUTH_ST_API_KEY",
+                },
+            })
+        );
         service = new SupertokensService();
     });
 
@@ -92,6 +112,29 @@ describe("SupertokensService", () => {
                     },
                 }
             );
+        });
+    });
+
+    describe("prepareWritePayload", () => {
+        it("should prepare the write payload with unique roles and permissions", () => {
+            const input = {
+                rolesWithPermissions: [
+                    { role: "admin", permissions: ["read", "write", "delete"] },
+                    { role: "user", permissions: ["read"] },
+                    { role: "editor", permissions: ["read", "write"] },
+                    { role: "admin", permissions: ["read", "delete"] }, // duplicate role with overlapping permissions
+                ],
+            };
+
+            const expectedOutput = {
+                roles: ["admin", "user", "editor"],
+                permissions: ["read", "write", "delete"],
+                rolesWithPermissions: input.rolesWithPermissions,
+            };
+
+            const result = service.prepareWritePayload(input);
+
+            expect(result).toEqual(expectedOutput);
         });
     });
 });

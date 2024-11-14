@@ -1,6 +1,19 @@
 export namespace SupertokensSync {
+    /**
+     * Configuration for the SupertokensSync program.
+     */
     export type Config = {
         logLevel: "debug" | "info";
+        mode: "verify" | "sync";
+        outputExtension: ".json" | ".ts";
+        outputPath: string;
+        outputFileName: string;
+        priority: "dev" | "prod";
+        envKeyNames: EnvKeyNames;
+    };
+    export type EnvKeyNames = {
+        connectionUri: string;
+        apiKey: string;
     };
     export type EnvVars = {
         ST_API_KEY_DEV: string;
@@ -25,5 +38,10 @@ export namespace SupertokensSync {
         missingInSetB: RoleWithPermissions[];
         missingInSetA: RoleWithPermissions[];
         permissionDifferences: PermissionDifferences[];
+    };
+    export type RolePermissionsWritingPreparation = {
+        roles: string[];
+        permissions: string[];
+        rolesWithPermissions: RoleWithPermissions[];
     };
 }

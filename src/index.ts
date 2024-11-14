@@ -10,8 +10,6 @@ async function main() {
         roles: rolesDev,
     });
 
-    //console.log(rolesWithPermissionsDev);
-
     const rolesProd = await service.getAllRoles("prod");
 
     const rolesWithPermissionsProd = await service.getPermissionsForRoles({
@@ -19,17 +17,26 @@ async function main() {
         roles: rolesProd,
     });
 
-    //console.log(rolesWithPermissionsProd);
-
-    const comparisonResult = service.compareRoles({
+    const comparisonResult = service.compareRolesAndPermissions({
         rolesA: rolesWithPermissionsDev,
         rolesB: rolesWithPermissionsProd,
     });
 
-    // console.log(
-    //     "Roles comparison result:\n",
-    //     JSON.stringify(comparisonResult, null, 2)
-    // );
+    const mode = service.getMode();
+    if (mode === "verify") {
+        console.info("✅ Verification complete.");
+        return;
+    }
+
+    const targetRolesWithPermissions = service.controlRolesAndPermissions({
+        comparisonResult,
+        rolesA: rolesWithPermissionsDev,
+        rolesB: rolesWithPermissionsProd,
+    });
+
+    await service.generateAuthConfig({
+        rolesWithPermissions: targetRolesWithPermissions,
+    });
 }
 
 main().catch((error) => {

@@ -1,7 +1,7 @@
 {
   "name": "supertokens-sync",
   "version": "0.0.1",
-  "description": "Sync your roles and permissions to a local file",
+  "description": "Sync your Supertokens roles and permissions to a local file",
   "main": "src/index.ts",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/Solgt/supertokens-sync.git"
   },
   "keywords": [
-    "supertokens"
+    "supertokens", "rbac", "pbac", "sync", "roles", "permissions"
   ],
   "author": "Filip Niklas",
   "license": "MIT",
@@ -30,6 +30,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
+    "prettier": "^3.3.3",
     "zod": "^3.23.8"
   }
 }

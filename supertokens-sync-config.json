@@ -1,3 +1,12 @@
 {
-    "logLevel": "debug"
+    "logLevel": "info",
+    "mode": "sync",
+    "outputExtension": ".ts",
+    "outputPath": "./",
+    "outputFileName": "supertokensAuthConfig",
+    "priority": "prod",
+    "envKeyNames": {
+        "connectionUri": "AUTH_SUPERTOKENS_CONNECTION_URI",
+        "apiKey": "AUTH_SUPERTOKENS_API_KEY"
+    }
 }
