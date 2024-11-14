@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { SupertokensService } from "./SupertokensService";
 
 async function main() {
