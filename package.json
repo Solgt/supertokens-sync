@@ -2,9 +2,14 @@
   "name": "supertokens-sync",
   "version": "0.0.1",
   "description": "Sync your Supertokens roles and permissions to a local file",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "build": "tsc",
     "test": "vitest"
   },
   "repository": {
