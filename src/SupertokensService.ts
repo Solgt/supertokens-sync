@@ -9,16 +9,16 @@ import { WriterService } from "./WriterService";
 export class SupertokensService {
     private static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
     private static readonly defaultConfig = {
-        logLevel: "info",
         mode: "sync",
-        outputExtension: ".ts",
-        outputPath: "./",
-        outputFileName: "supertokensAuthConfig",
         priority: "prod",
         envKeyNames: {
             connectionUri: "SUPERTOKENS_CONNECTION_URI",
             apiKey: "SUPERTOKENS_API_KEY",
         },
+        outputExtension: ".ts",
+        outputPath: "./",
+        outputFileName: "supertokensAuthConfig",
+        logLevel: "info",
     } satisfies SupertokensSync.Config;
     private coreApiEndpoints = {
         getAllRoles: "recipe/roles",
