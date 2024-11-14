@@ -57,16 +57,16 @@ export class WriterService {
 
         const fileContent = `// Auto-generated auth configuration
 export namespace SupertokensSyncAuthConfigTypes {
-    export type RoleValues = {
+    export type Roles = {
         [K in keyof typeof authConfig.roles]: (typeof authConfig.roles)[K];
     };
-    export type PermissionValues = {
+    export type Permissions = {
         [K in keyof typeof authConfig.permissions]: (typeof authConfig.permissions)[K];
     };
     export type RoleWithPermissions = {
-        role: RoleValues[keyof typeof authConfig.roles];
+        role: Roles[keyof typeof authConfig.roles];
         permissions: Array<
-            PermissionValues[keyof typeof authConfig.permissions]
+            Permissions[keyof typeof authConfig.permissions]
         >;
     };
 }
