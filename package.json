@@ -1,12 +1,15 @@
 {
   "name": "@solgt/supertokens-sync",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Sync your Supertokens roles and permissions to a local file",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "bin": {
+    "supertokens-sync": "dist/index.js"
+  },
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "tsc",
