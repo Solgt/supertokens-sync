@@ -23,13 +23,44 @@ export class WriterService {
                 await this.handleWritingToTsFile({ outputPath, preparation });
                 break;
             case ".json":
-                console.warn(
-                    "⚠️ Warn: JSON output is not supported yet. Exiting"
+                this.handleWritingToJsonFile({ outputPath, preparation });
+                break;
+            default:
+                console.error(
+                    "❌ Error: Unsupported output extension. Exiting"
                 );
                 process.exit(1);
-            default:
-                console.error("❌ Error: Invalid output extension. Exiting");
-                process.exit(1);
+        }
+    }
+
+    private handleWritingToJsonFile({
+        outputPath,
+        preparation,
+    }: {
+        outputPath: string;
+        preparation: SupertokensSync.RolePermissionsWritingPreparation;
+    }) {
+        const content = JSON.stringify(
+            this.generateAuthConfig(preparation),
+            null,
+            4
+        );
+        const filePath = path.resolve(
+            process.cwd(),
+            outputPath,
+            `${this.config.outputFileName}.json`
+        );
+        this.makeDirIfNotExists(filePath);
+        fs.writeFileSync(filePath, content);
+        console.info(`✅ Roles and permissions synced to '${filePath}'.`);
+    }
+
+    private makeDirIfNotExists(filePath: string) {
+        const dir = path.dirname(filePath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, {
+                recursive: true,
+            });
         }
     }
 
@@ -46,6 +77,7 @@ export class WriterService {
             outputPath,
             `${this.config.outputFileName}.ts`
         );
+        this.makeDirIfNotExists(filePath);
         fs.writeFileSync(filePath, content);
         console.info(`✅ Roles and permissions synced to '${filePath}'.`);
     }

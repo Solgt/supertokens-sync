@@ -1,8 +1,8 @@
 {
     "logLevel": "info",
     "mode": "sync",
-    "outputExtension": ".ts",
-    "outputPath": "./",
+    "outputExtension": ".json",
+    "outputPath": "./xyz/etc/",
     "outputFileName": "supertokensAuthConfig",
     "priority": "prod",
     "envKeyNames": {

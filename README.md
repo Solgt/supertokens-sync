@@ -50,6 +50,13 @@ output according it, otherwise prettier defaults will be used.
 From here you can put `npx supertokens-sync` in front of your development
 command, during pre-build or just as an isolated command.
 
+## Caveats
+
+Keys generated out of roles and permissions are capitalized, and any characters
+_not_ a letter or a number will be replaced with an underscore. For example: if
+a permission is the string `"read:feature:lists"`, the generated key will be
+`READ_FEATURE_LISTS`.
+
 ## Configuration
 
 The configuration file `supertokens-sync-config.json` is automaticaly generated
