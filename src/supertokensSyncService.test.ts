@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import axios from "axios";
 import dotenv from "dotenv";
 import fs from "fs";
-import { SupertokensService } from "./SupertokensService";
+import { SupertokensSyncService } from "./SupertokensSyncService";
 import { loadEnvironmentAndVerifyEnvVars } from "./utils";
 
 vi.mock("fs");
@@ -11,7 +11,7 @@ vi.mock("dotenv");
 vi.mock("./utils");
 
 describe("SupertokensService", () => {
-    let service: SupertokensService;
+    let service: SupertokensSyncService;
 
     beforeEach(() => {
         vi.mocked(dotenv.config).mockReturnValue({ parsed: {} });
@@ -39,7 +39,7 @@ describe("SupertokensService", () => {
                 },
             })
         );
-        service = new SupertokensService();
+        service = new SupertokensSyncService();
     });
 
     describe("getAllRoles", () => {

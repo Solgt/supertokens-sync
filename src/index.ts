@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { SupertokensService } from "./SupertokensService";
+import { SupertokensSyncService } from "./SupertokensSyncService";
 
 async function main() {
-    const service = new SupertokensService();
+    const service = new SupertokensSyncService();
 
     const rolesDev = await service.getAllRoles("dev");
 

@@ -6,7 +6,7 @@ import * as path from "path";
 import z from "zod";
 import { WriterService } from "./WriterService";
 
-export class SupertokensService {
+export class SupertokensSyncService {
     private static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
     private static readonly defaultConfig = {
         mode: "sync",
@@ -272,13 +272,13 @@ export class SupertokensService {
     private loadConfigFile(): SupertokensSync.Config {
         const configPath = path.resolve(
             process.cwd(),
-            SupertokensService.CONFIG_FILE_NAME
+            SupertokensSyncService.CONFIG_FILE_NAME
         );
 
         if (!fs.existsSync(configPath)) {
             fs.writeFileSync(
                 configPath,
-                JSON.stringify(SupertokensService.defaultConfig, null, 4)
+                JSON.stringify(SupertokensSyncService.defaultConfig, null, 4)
             );
             console.info(
                 `📑 No config file found. Created default config at '${configPath}'.`
