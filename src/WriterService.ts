@@ -103,8 +103,6 @@ export namespace SupertokensSyncAuthConfigTypes {
     };
 }
 export const authConfig = ${JSON.stringify(authConfig, null, 4)} as const;
-
-export type AuthConfig = typeof authConfig;
 `;
         const prettierrc = await prettier.resolveConfig(
             `${process.cwd()}/.prettierrc`
