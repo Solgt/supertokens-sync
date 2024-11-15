@@ -9,6 +9,7 @@ export namespace SupertokensSync {
         outputPath: string;
         outputFileName: string;
         priority: "dev" | "prod";
+        authConfigObjectName: string;
         envKeyNames: EnvKeyNames;
     };
     export type EnvKeyNames = {

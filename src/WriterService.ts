@@ -86,23 +86,25 @@ export class WriterService {
         input: SupertokensSync.RolePermissionsWritingPreparation
     ) {
         const authConfig = this.generateAuthConfig(input);
+        const capitalizedName = `${this.config.authConfigObjectName.charAt(0).toUpperCase()}${this.config.authConfigObjectName.slice(1)}`;
+        const objectName = `${this.config.authConfigObjectName}`;
 
-        const fileContent = `// Auto-generated auth configuration
-export namespace SupertokensSyncAuthConfigTypes {
+        const fileContent = `// Auto-generated auth configuration by supertokens-sync
+export namespace ${capitalizedName}Types {
     export type Roles = {
-        [K in keyof typeof authConfig.roles]: (typeof authConfig.roles)[K];
+        [K in keyof typeof ${objectName}.roles]: (typeof ${objectName}.roles)[K];
     };
     export type Permissions = {
-        [K in keyof typeof authConfig.permissions]: (typeof authConfig.permissions)[K];
+        [K in keyof typeof ${objectName}.permissions]: (typeof ${objectName}.permissions)[K];
     };
     export type RoleWithPermissions = {
-        role: Roles[keyof typeof authConfig.roles];
+        role: Roles[keyof typeof ${objectName}.roles];
         permissions: Array<
-            Permissions[keyof typeof authConfig.permissions]
+            Permissions[keyof typeof ${objectName}.permissions]
         >;
     };
 }
-export const authConfig = ${JSON.stringify(authConfig, null, 4)} as const;
+export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, null, 4)} as const;
 `;
         const prettierrc = await prettier.resolveConfig(
             `${process.cwd()}/.prettierrc`

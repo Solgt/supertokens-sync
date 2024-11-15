@@ -1,10 +1,11 @@
 {
     "logLevel": "info",
     "mode": "sync",
-    "outputExtension": ".json",
+    "outputExtension": ".ts",
     "outputPath": "./xyz/etc/",
     "outputFileName": "supertokensAuthConfig",
     "priority": "prod",
+    "authConfigObjectName": "supertokensAuthConfig",
     "envKeyNames": {
         "connectionUri": "AUTH_SUPERTOKENS_CONNECTION_URI",
         "apiKey": "AUTH_SUPERTOKENS_API_KEY"

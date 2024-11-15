@@ -70,6 +70,7 @@ with defaults when no config file is detected.
 | `outputPath`                | _any valid path string_      | `"./"`                         |
 | `outputFileName`            | _any valid file name string_ | `"supertokensAuthConfig"`      |
 | `priority`                  | `"dev"`, `"prod"`            | `"prod"`                       |
+| `authConfigObjectName`      | _string_                     | `"supertokensAuthConfig"`      |
 | `envKeyNames`               | _EnvKeyNames object_         | _(required)_                   |
 | `envKeyNames.connectionUri` | _string_                     | `"SUPERTOKENS_CONNECTION_URI"` |
 | `envKeyNames.apiKey`        | _string_                     | `"SUPERTOKENS_API_KEY"`        |

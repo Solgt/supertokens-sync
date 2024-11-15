@@ -18,6 +18,7 @@ export class SupertokensSyncService {
         outputExtension: ".ts",
         outputPath: "./",
         outputFileName: "supertokensAuthConfig",
+        authConfigObjectName: "supertokensAuthConfig",
         logLevel: "info",
     } satisfies SupertokensSync.Config;
     private coreApiEndpoints = {
@@ -296,6 +297,7 @@ export class SupertokensSyncService {
                 connectionUri: z.string(),
                 apiKey: z.string(),
             }),
+            authConfigObjectName: z.string(),
         });
         type ConfigSchema = z.infer<typeof configSchema>;
         (function (_: SupertokensSync.Config) {})({} as ConfigSchema); // Type guard

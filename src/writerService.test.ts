@@ -23,6 +23,7 @@ describe("WriterService", () => {
                 connectionUri: "AUTH_ST_CONNECTION_URI",
                 apiKey: "AUTH_ST_API_KEY",
             },
+            authConfigObjectName: "supertokensAuthConfig",
         } satisfies SupertokensSync.Config;
         service = new WriterService(config);
     });

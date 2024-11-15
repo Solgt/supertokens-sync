@@ -37,6 +37,7 @@ describe("SupertokensService", () => {
                     connectionUri: "AUTH_ST_CONNECTION_URI",
                     apiKey: "AUTH_ST_API_KEY",
                 },
+                authConfigObjectName: "supertokensAuthConfig",
             })
         );
         service = new SupertokensSyncService();
