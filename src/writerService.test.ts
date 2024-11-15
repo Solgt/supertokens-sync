@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import fs from "fs";
 import { WriterService } from "./WriterService";
 import { SupertokensSync } from "./types";
 
@@ -29,7 +28,7 @@ describe("WriterService", () => {
     });
 
     describe("generateAuthConfig", () => {
-        it("should return config", async () => {
+        it("should return config (alphabetically)", async () => {
             const input = {
                 roles: ["internal", "user", "admin", "superadmin"],
                 permissions: [
@@ -60,10 +59,10 @@ describe("WriterService", () => {
             const config = await service.generateAuthConfig(input);
             expect(config).toEqual({
                 roles: {
-                    INTERNAL: "internal",
-                    USER: "user",
                     ADMIN: "admin",
+                    INTERNAL: "internal",
                     SUPERADMIN: "superadmin",
+                    USER: "user",
                 },
                 permissions: {
                     NONE: "NONE",
@@ -73,20 +72,20 @@ describe("WriterService", () => {
                 },
                 rolesWithPermissions: [
                     {
-                        role: "internal",
-                        permissions: ["read:dev"],
-                    },
-                    {
-                        role: "user",
-                        permissions: ["NONE"],
-                    },
-                    {
                         role: "admin",
                         permissions: ["rw:admin:general"],
                     },
                     {
+                        role: "internal",
+                        permissions: ["read:dev"],
+                    },
+                    {
                         role: "superadmin",
                         permissions: ["rw:admin:general", "rw:admin:special"],
+                    },
+                    {
+                        role: "user",
+                        permissions: ["NONE"],
                     },
                 ],
             });

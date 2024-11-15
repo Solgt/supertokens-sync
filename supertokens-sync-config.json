@@ -2,7 +2,7 @@
     "logLevel": "info",
     "mode": "sync",
     "outputExtension": ".ts",
-    "outputPath": "./xyz/etc/",
+    "outputPath": "./",
     "outputFileName": "supertokensAuthConfig",
     "priority": "prod",
     "authConfigObjectName": "supertokensAuthConfig",

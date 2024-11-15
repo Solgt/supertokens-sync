@@ -120,41 +120,48 @@ export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, 
     generateAuthConfig(
         input: SupertokensSync.RolePermissionsWritingPreparation
     ) {
-        const roles = input.roles.reduce(
-            (acc, role) => {
-                acc[role.toUpperCase()] = role;
-                return acc;
-            },
-            {} as Record<string, string>
-        );
+        const roles = input.roles
+            .sort((a, b) => a.localeCompare(b))
+            .reduce(
+                (acc, role) => {
+                    acc[role.toUpperCase()] = role;
+                    return acc;
+                },
+                {} as Record<string, string>
+            );
 
-        const permissions = input.permissions.reduce(
-            (acc, permission) => {
-                acc[permission.toUpperCase().replace(/[^a-zA-Z0-9]/g, "_")] =
-                    permission;
-                return acc;
-            },
-            {} as Record<string, string>
-        );
+        const permissions = input.permissions
+            .sort((a, b) => a.localeCompare(b))
+            .reduce(
+                (acc, permission) => {
+                    acc[
+                        permission.toUpperCase().replace(/[^a-zA-Z0-9]/g, "_")
+                    ] = permission;
+                    return acc;
+                },
+                {} as Record<string, string>
+            );
 
-        const rolesWithPermissions = input.rolesWithPermissions.map(
-            (roleWithPermissions) => ({
+        const rolesWithPermissions = input.rolesWithPermissions
+            .map((roleWithPermissions) => ({
                 role: roles[
                     roleWithPermissions.role.toUpperCase() as keyof typeof roles
                 ],
-                permissions: roleWithPermissions.permissions.map(
-                    (permission) =>
-                        permissions[
-                            permission
-                                .toUpperCase()
-                                .replace(
-                                    /[^a-zA-Z0-9]/g,
-                                    "_"
-                                ) as keyof typeof permissions
-                        ]
-                ),
-            })
-        );
+                permissions: roleWithPermissions.permissions
+                    .map(
+                        (permission) =>
+                            permissions[
+                                permission
+                                    .toUpperCase()
+                                    .replace(
+                                        /[^a-zA-Z0-9]/g,
+                                        "_"
+                                    ) as keyof typeof permissions
+                            ]
+                    )
+                    .sort((a, b) => a.localeCompare(b)),
+            }))
+            .sort((a, b) => a.role.localeCompare(b.role));
 
         const authConfig = {
             roles,
