@@ -75,6 +75,13 @@ with defaults when no config file is detected.
 | `envKeyNames.connectionUri` | _string_                     | `"SUPERTOKENS_CONNECTION_URI"` |
 | `envKeyNames.apiKey`        | _string_                     | `"SUPERTOKENS_API_KEY"`        |
 
+## Release Pipeline
+
+Currently manual.
+
+-   `npm run build`
+-   `npm publish --access public`
+
 ## License
 
 MIT

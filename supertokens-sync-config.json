@@ -1,5 +1,5 @@
 {
-    "logLevel": "info",
+    "logLevel": "debug",
     "mode": "sync",
     "outputExtension": ".ts",
     "outputPath": "./",
