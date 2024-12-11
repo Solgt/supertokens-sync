@@ -79,6 +79,20 @@ export class SupertokensSyncService {
         };
     }
 
+    controlTenants({
+        devTenants,
+        prodTenants,
+    }: {
+        devTenants: string[];
+        prodTenants: string[];
+    }) {
+        if (this.config.priority === "dev") {
+            return devTenants;
+        } else {
+            return prodTenants;
+        }
+    }
+
     controlRolesAndPermissions({
         comparisonResult,
         rolesA,

@@ -43,9 +43,14 @@ async function main() {
         rolesB: rolesWithPermissionsProd,
     });
 
+    const targetTenants = service.controlTenants({
+        devTenants: currentDevTenants,
+        prodTenants: currentProdTenants,
+    });
+
     await service.generateAuthConfig({
         rolesWithPermissions: targetRolesWithPermissions,
-        tenants: currentProdTenants,
+        tenants: targetTenants,
     });
 }
 
