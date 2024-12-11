@@ -5,6 +5,13 @@ import { SupertokensSyncService } from "./SupertokensSyncService";
 async function main() {
     const service = new SupertokensSyncService();
 
+    const currentDevTenants = await service.getAllTenants("dev");
+    const currentProdTenants = await service.getAllTenants("prod");
+    service.compareAndControlTenants({
+        tenantsA: currentDevTenants,
+        tenantsB: currentProdTenants,
+    });
+
     const rolesDev = await service.getAllRoles("dev");
 
     const rolesWithPermissionsDev = await service.getPermissionsForRoles({

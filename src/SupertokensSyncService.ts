@@ -30,6 +30,7 @@ export class SupertokensSyncService {
         getUserRoles: (userId: string) => `recipe/user/roles?userId=${userId}`,
         getUserMetadata: (userId: string) =>
             `recipe/user/metadata?userId=${userId}`,
+        getAllTenants: "recipe/multitenancy/tenant/list/v2",
     };
     private envVars: SupertokensSync.EnvVars;
     private config: SupertokensSync.Config;
@@ -106,6 +107,32 @@ export class SupertokensSyncService {
         await writerService.write({ preparation });
     }
 
+    async getAllTenants(
+        environment: SupertokensSync.Environment
+    ): Promise<string[]> {
+        const { ST_CONNECTION_URI, ST_API_KEY } =
+            this.getApiKeysForEnvironment(environment);
+
+        const url = `${ST_CONNECTION_URI}/${this.coreApiEndpoints.getAllTenants}`;
+        const resp = await axios.get(url, {
+            headers: {
+                "api-key": ST_API_KEY,
+            },
+        });
+
+        const body = resp.data;
+        if (body.status !== "OK") {
+            throw new Error("Response from Supertokens not OK.");
+        }
+
+        const currentTenants = body.tenants.map(
+            (tenant: { tenantId: string }) => {
+                return tenant.tenantId;
+            }
+        ) as string[];
+        return currentTenants;
+    }
+
     async getAllRoles(
         environment: SupertokensSync.Environment
     ): Promise<string[]> {
@@ -163,6 +190,43 @@ export class SupertokensSyncService {
         );
 
         return rolesWithPermissions;
+    }
+
+    compareAndControlTenants({
+        tenantsA,
+        tenantsB,
+    }: {
+        tenantsA: string[];
+        tenantsB: string[];
+    }) {
+        if (this.areStringArraysEqual(tenantsA, tenantsB)) {
+            return;
+        }
+        if (this.config.logLevel === "debug") {
+            const result = {
+                missingInSetA: tenantsB.filter(
+                    (tenant) => !tenantsA.includes(tenant)
+                ),
+                missingInSetB: tenantsA.filter(
+                    (tenant) => !tenantsB.includes(tenant)
+                ),
+            };
+            let message = "⏸️ Tenants are not in sync.";
+            if (result.missingInSetA.length > 0) {
+                message += ` Tenants missing in Dev: ${JSON.stringify(result.missingInSetA)}`;
+            }
+            if (result.missingInSetB.length > 0) {
+                message += ` Tenants missing in Prod: ${JSON.stringify(result.missingInSetB)}`;
+            }
+            console.warn(message);
+        } else {
+            console.warn(`⚠️ Warn: Tenants are not in sync.`);
+        }
+        return;
+    }
+
+    private areStringArraysEqual(arrA: string[], arrB: string[]) {
+        return JSON.stringify(arrA) === JSON.stringify(arrB);
     }
 
     compareRolesAndPermissions({
