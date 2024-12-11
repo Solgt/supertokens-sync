@@ -97,6 +97,9 @@ export namespace ${capitalizedName}Types {
     export type Permissions = {
         [K in keyof typeof ${objectName}.permissions]: (typeof ${objectName}.permissions)[K];
     };
+    export type Tenants = {
+        [K in keyof typeof ${objectName}.tenants]: (typeof ${objectName}.tenants)[K];
+    };
     export type RoleWithPermissions = {
         role: Roles[keyof typeof ${objectName}.roles];
         permissions: Array<
@@ -120,27 +123,9 @@ export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, 
     generateAuthConfig(
         input: SupertokensSync.RolePermissionsWritingPreparation
     ) {
-        const roles = input.roles
-            .sort((a, b) => a.localeCompare(b))
-            .reduce(
-                (acc, role) => {
-                    acc[role.toUpperCase()] = role;
-                    return acc;
-                },
-                {} as Record<string, string>
-            );
-
-        const permissions = input.permissions
-            .sort((a, b) => a.localeCompare(b))
-            .reduce(
-                (acc, permission) => {
-                    acc[
-                        permission.toUpperCase().replace(/[^a-zA-Z0-9]/g, "_")
-                    ] = permission;
-                    return acc;
-                },
-                {} as Record<string, string>
-            );
+        const tenants = this.createKeysAndValues(input.tenants);
+        const roles = this.createKeysAndValues(input.roles);
+        const permissions = this.createKeysAndValues(input.permissions);
 
         const rolesWithPermissions = input.rolesWithPermissions
             .map((roleWithPermissions) => ({
@@ -164,11 +149,27 @@ export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, 
             .sort((a, b) => a.role.localeCompare(b.role));
 
         const authConfig = {
+            tenants,
             roles,
             permissions,
             rolesWithPermissions,
         } as const;
 
         return authConfig;
+    }
+
+    private createKeysAndValues(input: string[]) {
+        const payload = input
+            .sort((a, b) => a.localeCompare(b))
+            .reduce(
+                (acc, permission) => {
+                    acc[
+                        permission.toUpperCase().replace(/[^a-zA-Z0-9]/g, "_")
+                    ] = permission;
+                    return acc;
+                },
+                {} as Record<string, string>
+            );
+        return payload;
     }
 }

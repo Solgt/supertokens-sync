@@ -45,6 +45,7 @@ async function main() {
 
     await service.generateAuthConfig({
         rolesWithPermissions: targetRolesWithPermissions,
+        tenants: currentProdTenants,
     });
 }
 

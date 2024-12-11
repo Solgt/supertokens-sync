@@ -30,6 +30,7 @@ describe("WriterService", () => {
     describe("generateAuthConfig", () => {
         it("should return config (alphabetically)", async () => {
             const input = {
+                tenants: ["public"],
                 roles: ["internal", "user", "admin", "superadmin"],
                 permissions: [
                     "NONE",
@@ -56,8 +57,11 @@ describe("WriterService", () => {
                     },
                 ],
             };
-            const config = await service.generateAuthConfig(input);
+            const config = service.generateAuthConfig(input);
             expect(config).toEqual({
+                tenants: {
+                    PUBLIC: "public",
+                },
                 roles: {
                     ADMIN: "admin",
                     INTERNAL: "internal",

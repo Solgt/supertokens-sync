@@ -46,17 +46,24 @@ export class SupertokensSyncService {
 
     async generateAuthConfig({
         rolesWithPermissions,
+        tenants,
     }: {
         rolesWithPermissions: SupertokensSync.RoleWithPermissions[];
+        tenants: string[];
     }) {
-        const preparation = this.prepareWritePayload({ rolesWithPermissions });
+        const preparation = this.prepareWritePayload({
+            rolesWithPermissions,
+            tenants,
+        });
         await this.writeToFile({ preparation });
     }
 
     prepareWritePayload({
         rolesWithPermissions,
+        tenants,
     }: {
         rolesWithPermissions: SupertokensSync.RoleWithPermissions[];
+        tenants: string[];
     }): SupertokensSync.RolePermissionsWritingPreparation {
         const roles = Array.from(
             new Set(rolesWithPermissions.map((role) => role.role))
@@ -68,6 +75,7 @@ export class SupertokensSyncService {
             roles,
             permissions,
             rolesWithPermissions,
+            tenants,
         };
     }
 
@@ -219,6 +227,7 @@ export class SupertokensSyncService {
                 message += ` Tenants missing in Prod: ${JSON.stringify(result.missingInSetB)}`;
             }
             console.warn(message);
+        } else if (this.config.logLevel === "suppress") {
         } else {
             console.warn(`⚠️ Warn: Tenants are not in sync.`);
         }
@@ -312,6 +321,7 @@ export class SupertokensSyncService {
                         result.permissionDifferences
                     );
                 }
+            } else if (this.config.logLevel === "suppress") {
             } else {
                 console.warn(
                     "⚠️ Warn: Roles are not in sync. Activate debug to check the comparison result."
@@ -356,7 +366,7 @@ export class SupertokensSyncService {
         }
 
         const configSchema = z.object({
-            logLevel: z.enum(["debug", "info"]),
+            logLevel: z.enum(["debug", "info", "suppress"]),
             mode: z.enum(["verify", "sync"]),
             outputExtension: z.enum([".json", ".ts"]),
             outputPath: z.string(),

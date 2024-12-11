@@ -3,7 +3,7 @@ export namespace SupertokensSync {
      * Configuration for the SupertokensSync program.
      */
     export type Config = {
-        logLevel: "debug" | "info";
+        logLevel: "debug" | "info" | "suppress";
         mode: "verify" | "sync";
         outputExtension: ".json" | ".ts";
         outputPath: string;
@@ -44,5 +44,6 @@ export namespace SupertokensSync {
         roles: string[];
         permissions: string[];
         rolesWithPermissions: RoleWithPermissions[];
+        tenants: string[];
     };
 }

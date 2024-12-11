@@ -27,7 +27,7 @@ describe("SupertokensService", () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
         vi.mocked(fs.readFileSync).mockReturnValue(
             JSON.stringify({
-                logLevel: "info",
+                logLevel: "suppress",
                 mode: "sync",
                 outputExtension: ".ts",
                 outputPath: "./",
@@ -151,12 +151,14 @@ describe("SupertokensService", () => {
                     { role: "editor", permissions: ["read", "write"] },
                     { role: "admin", permissions: ["read", "delete"] }, // duplicate role with overlapping permissions
                 ],
+                tenants: ["public"],
             };
 
             const expectedOutput = {
                 roles: ["admin", "user", "editor"],
                 permissions: ["read", "write", "delete"],
                 rolesWithPermissions: input.rolesWithPermissions,
+                tenants: ["public"],
             };
 
             const result = service.prepareWritePayload(input);
