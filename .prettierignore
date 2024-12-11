@@ -5,3 +5,5 @@ yarn.lock
 package-lock.json
 public
 package.json
+*.yaml
+*.yml
