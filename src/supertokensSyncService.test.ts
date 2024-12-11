@@ -116,6 +116,32 @@ describe("SupertokensService", () => {
         });
     });
 
+    describe("compareArrays", () => {
+        it("should return false if arrays are different", () => {
+            const arrayA = ["admin", "user", "editor"];
+            const arrayB = ["admin", "user"];
+
+            const result = service.compareAndControlTenants({
+                tenantsA: arrayA,
+                tenantsB: arrayB,
+            });
+
+            expect(result).toEqual(false);
+        });
+
+        it("should return true if arrays are same regardless of order", () => {
+            const arrayA = ["admin", "user", "editor"];
+            const arrayB = ["admin", "editor", "user"];
+
+            const result = service.compareAndControlTenants({
+                tenantsA: arrayA,
+                tenantsB: arrayB,
+            });
+
+            expect(result).toEqual(true);
+        });
+    });
+
     describe("prepareWritePayload", () => {
         it("should prepare the write payload with unique roles and permissions", () => {
             const input = {

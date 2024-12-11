@@ -200,7 +200,7 @@ export class SupertokensSyncService {
         tenantsB: string[];
     }) {
         if (this.areStringArraysEqual(tenantsA, tenantsB)) {
-            return;
+            return true;
         }
         if (this.config.logLevel === "debug") {
             const result = {
@@ -222,11 +222,16 @@ export class SupertokensSyncService {
         } else {
             console.warn(`⚠️ Warn: Tenants are not in sync.`);
         }
-        return;
+        return false;
     }
 
     private areStringArraysEqual(arrA: string[], arrB: string[]) {
-        return JSON.stringify(arrA) === JSON.stringify(arrB);
+        if (arrA.length !== arrB.length) return false;
+
+        const sortedA = [...arrA].sort();
+        const sortedB = [...arrB].sort();
+
+        return JSON.stringify(sortedA) === JSON.stringify(sortedB);
     }
 
     compareRolesAndPermissions({
