@@ -21,13 +21,15 @@ Sync your Supertokens roles and permissions to a local file. If you have many
 apps that need to be in sync with what roles and permissions _actually_ exist in
 your Supertokens core instance while you develop or as a safety check during
 build, you can use `supertokens-sync` to maintain a central auth config file
-that includes roles, permissions and roles with permissions..
+that includes roles, permissions and roles with permissions.
 
 The script will retrieve roles and permissions from both Supertokens development
 and production cores, and perform a comparison. If there is a mismatch between
 the cores in terms of roles and permissions, the script will prioritize one set
 and generate a config file based on it (in the config you can select which to
 prioritize).
+
+Also retrieves and compares tenants, but only by ID.
 
 ## Prerequisites
 
