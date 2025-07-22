@@ -1,6 +1,6 @@
 {
   "name": "@solgt/supertokens-sync",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Sync your Supertokens tenants, roles and permissions to a local file",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
