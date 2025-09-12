@@ -79,10 +79,7 @@ with defaults when no config file is detected.
 
 ## Release Pipeline
 
-Currently manual.
-
--   `npm run build`
--   `npm publish --access public`
+Runs on release creation.
 
 ## License
 
