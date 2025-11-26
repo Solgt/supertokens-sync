@@ -1,35 +1,35 @@
 name: Publish to NPM 🚀
 
 on:
-    release:
-        types: [created]
+  release:
+    types: [created]
 
 jobs:
-    build-and-publish:
-        runs-on: ubuntu-latest
-        steps:
-            - name: "Checkout GitHub Action"
-              uses: actions/checkout@v4
-                
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: "20"
-                registry-url: "https://registry.npmjs.org"
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
 
-            - name: Run tests
-              run: npm run test
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Build
-              run: npm run build
+      - name: Run tests
+        run: npm run test
 
-            - name: Configure npm authentication
-              run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Build
+        run: npm run build
 
-            - name: Publish to npm
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish --access public
+      - name: Configure npm authentication
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public

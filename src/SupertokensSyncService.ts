@@ -1,14 +1,14 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import axios from "axios";
-import { loadEnvironmentAndVerifyEnvVars } from "./utils";
-import { SupertokensSync } from "./types";
-import * as fs from "fs";
-import * as path from "path";
 import z from "zod";
+import type { SupertokensSync } from "./types";
+import { loadEnvironmentAndVerifyEnvVars } from "./utils";
 import { WriterService } from "./WriterService";
 
 export class SupertokensSyncService {
-    private static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
-    private static readonly defaultConfig = {
+    protected static readonly CONFIG_FILE_NAME = "supertokens-sync-config.json";
+    protected static readonly defaultConfig = {
         mode: "sync",
         priority: "prod",
         envKeyNames: {
@@ -66,10 +66,10 @@ export class SupertokensSyncService {
         tenants: string[];
     }): SupertokensSync.RolePermissionsWritingPreparation {
         const roles = Array.from(
-            new Set(rolesWithPermissions.map((role) => role.role))
+            new Set(rolesWithPermissions.map((role) => role.role)),
         );
         const permissions = Array.from(
-            new Set(rolesWithPermissions.map((role) => role.permissions).flat())
+            new Set(rolesWithPermissions.flatMap((role) => role.permissions)),
         );
         return {
             roles,
@@ -108,11 +108,11 @@ export class SupertokensSyncService {
     }
 
     private getPrioritySet(
-        comparisonResult: SupertokensSync.RoleComparisonResult
+        comparisonResult: SupertokensSync.RoleComparisonResult,
     ) {
         if (!comparisonResult.isInSync) {
             console.info(
-                `⚠️ Warn: Roles are not in sync. Priority set to '${this.config.priority}'.`
+                `⚠️ Warn: Roles are not in sync. Priority set to '${this.config.priority}'.`,
             );
             return this.config.priority;
         } else {
@@ -130,7 +130,7 @@ export class SupertokensSyncService {
     }
 
     async getAllTenants(
-        environment: SupertokensSync.Environment
+        environment: SupertokensSync.Environment,
     ): Promise<string[]> {
         const { ST_CONNECTION_URI, ST_API_KEY } =
             this.getApiKeysForEnvironment(environment);
@@ -150,13 +150,13 @@ export class SupertokensSyncService {
         const currentTenants = body.tenants.map(
             (tenant: { tenantId: string }) => {
                 return tenant.tenantId;
-            }
+            },
         ) as string[];
         return currentTenants;
     }
 
     async getAllRoles(
-        environment: SupertokensSync.Environment
+        environment: SupertokensSync.Environment,
     ): Promise<string[]> {
         const { ST_CONNECTION_URI, ST_API_KEY } =
             this.getApiKeysForEnvironment(environment);
@@ -189,7 +189,7 @@ export class SupertokensSyncService {
 
         const rolesWithPermissionsPromises = roles.map(async (role) => {
             const url = `${ST_CONNECTION_URI}/${this.coreApiEndpoints.getPermissionsForRole(
-                role
+                role,
             )}`;
             const resp = await axios.get(url, {
                 headers: {
@@ -208,7 +208,7 @@ export class SupertokensSyncService {
         });
 
         const rolesWithPermissions = await Promise.all(
-            rolesWithPermissionsPromises
+            rolesWithPermissionsPromises,
         );
 
         return rolesWithPermissions;
@@ -227,10 +227,10 @@ export class SupertokensSyncService {
         if (this.config.logLevel === "debug") {
             const result = {
                 missingInSetA: tenantsB.filter(
-                    (tenant) => !tenantsA.includes(tenant)
+                    (tenant) => !tenantsA.includes(tenant),
                 ),
                 missingInSetB: tenantsA.filter(
-                    (tenant) => !tenantsB.includes(tenant)
+                    (tenant) => !tenantsB.includes(tenant),
                 ),
             };
             let message = "⏸️ Tenants are not in sync.";
@@ -275,10 +275,10 @@ export class SupertokensSyncService {
         };
 
         const rolesMapA = new Map(
-            sortedRolesA.map((role) => [role.role, role.permissions])
+            sortedRolesA.map((role) => [role.role, role.permissions]),
         );
         const rolesMapB = new Map(
-            sortedRolesB.map((role) => [role.role, role.permissions])
+            sortedRolesB.map((role) => [role.role, role.permissions]),
         );
 
         // Check for roles missing in set B
@@ -294,7 +294,7 @@ export class SupertokensSyncService {
             ) {
                 const { onlyInA, onlyInB } = this.getPermissionDifferences(
                     roleA.permissions,
-                    permissionsB
+                    permissionsB,
                 );
                 result.permissionDifferences.push({
                     role: roleA.role,
@@ -320,25 +320,25 @@ export class SupertokensSyncService {
                 if (result.missingInSetA.length > 0) {
                     console.warn(
                         "⏸️ Roles missing in set A (dev):",
-                        result.missingInSetA.map((role) => role.role)
+                        result.missingInSetA.map((role) => role.role),
                     );
                 }
                 if (result.missingInSetB.length > 0) {
                     console.warn(
                         "⏸️ Roles missing in set B (prod):",
-                        result.missingInSetB.map((role) => role.role)
+                        result.missingInSetB.map((role) => role.role),
                     );
                 }
                 if (result.permissionDifferences.length > 0) {
                     console.warn(
                         "⏸️ Permission differences:",
-                        result.permissionDifferences
+                        result.permissionDifferences,
                     );
                 }
             } else if (this.config.logLevel === "suppress") {
             } else {
                 console.warn(
-                    "⚠️ Warn: Roles are not in sync. Activate debug to check the comparison result."
+                    "⚠️ Warn: Roles are not in sync. Activate debug to check the comparison result.",
                 );
             }
         }
@@ -351,31 +351,31 @@ export class SupertokensSyncService {
         const setB = new Set(permissionsB);
 
         const onlyInA = permissionsA.filter(
-            (permission) => !setB.has(permission)
+            (permission) => !setB.has(permission),
         );
         const onlyInB = permissionsB.filter(
-            (permission) => !setA.has(permission)
+            (permission) => !setA.has(permission),
         );
         const common = permissionsA.filter((permission) =>
-            setB.has(permission)
+            setB.has(permission),
         );
 
         return { onlyInA, onlyInB, common };
     }
 
-    private loadConfigFile(): SupertokensSync.Config {
+    protected loadConfigFile(): SupertokensSync.Config {
         const configPath = path.resolve(
             process.cwd(),
-            SupertokensSyncService.CONFIG_FILE_NAME
+            SupertokensSyncService.CONFIG_FILE_NAME,
         );
 
         if (!fs.existsSync(configPath)) {
             fs.writeFileSync(
                 configPath,
-                JSON.stringify(SupertokensSyncService.defaultConfig, null, 4)
+                JSON.stringify(SupertokensSyncService.defaultConfig, null, 4),
             );
             console.info(
-                `📑 No config file found. Created default config at '${configPath}'.`
+                `📑 No config file found. Created default config at '${configPath}'.`,
             );
         }
 
@@ -393,7 +393,7 @@ export class SupertokensSyncService {
             authConfigObjectName: z.string(),
         });
         type ConfigSchema = z.infer<typeof configSchema>;
-        (function (_: SupertokensSync.Config) {})({} as ConfigSchema); // Type guard
+        ((_: SupertokensSync.Config) => {})({} as ConfigSchema); // Type guard
 
         const configFile = fs.readFileSync(configPath, "utf8");
         const rawConfig = JSON.parse(configFile);
@@ -426,7 +426,7 @@ export class SupertokensSyncService {
      * Sorts roles and permissions alphabetically.
      */
     private sortRoles(
-        roles: SupertokensSync.RoleWithPermissions[]
+        roles: SupertokensSync.RoleWithPermissions[],
     ): SupertokensSync.RoleWithPermissions[] {
         return roles
             .map((role) => ({

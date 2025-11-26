@@ -1,9 +1,0 @@
-.next
-next-env.d.ts
-node_modules
-yarn.lock
-package-lock.json
-public
-package.json
-*.yaml
-*.yml

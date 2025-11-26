@@ -1,7 +1,7 @@
-import path from "path";
-import fs from "fs";
-import prettier from "prettier";
-import { SupertokensSync } from "./types";
+import { execSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import type { SupertokensSync } from "./types";
 
 export class WriterService {
     private config: SupertokensSync.Config;
@@ -27,7 +27,7 @@ export class WriterService {
                 break;
             default:
                 console.error(
-                    "❌ Error: Unsupported output extension. Exiting"
+                    "❌ Error: Unsupported output extension. Exiting",
                 );
                 process.exit(1);
         }
@@ -43,15 +43,16 @@ export class WriterService {
         const content = JSON.stringify(
             this.generateAuthConfig(preparation),
             null,
-            4
+            4,
         );
         const filePath = path.resolve(
             process.cwd(),
             outputPath,
-            `${this.config.outputFileName}.json`
+            `${this.config.outputFileName}.json`,
         );
         this.makeDirIfNotExists(filePath);
         fs.writeFileSync(filePath, content);
+        this.format([filePath]);
         console.info(`✅ Roles and permissions synced to '${filePath}'.`);
     }
 
@@ -75,15 +76,16 @@ export class WriterService {
         const filePath = path.resolve(
             process.cwd(),
             outputPath,
-            `${this.config.outputFileName}.ts`
+            `${this.config.outputFileName}.ts`,
         );
         this.makeDirIfNotExists(filePath);
         fs.writeFileSync(filePath, content);
+        this.format([filePath]);
         console.info(`✅ Roles and permissions synced to '${filePath}'.`);
     }
 
     private async generateTsContent(
-        input: SupertokensSync.RolePermissionsWritingPreparation
+        input: SupertokensSync.RolePermissionsWritingPreparation,
     ) {
         const authConfig = this.generateAuthConfig(input);
         const capitalizedName = `${this.config.authConfigObjectName.charAt(0).toUpperCase()}${this.config.authConfigObjectName.slice(1)}`;
@@ -109,19 +111,12 @@ export namespace ${capitalizedName}Types {
 }
 export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, null, 4)} as const;
 `;
-        const prettierrc = await prettier.resolveConfig(
-            `${process.cwd()}/.prettierrc`
-        );
-        const formattedContent = await prettier.format(fileContent, {
-            parser: "typescript",
-            ...(prettier && { ...prettierrc }),
-        });
 
-        return formattedContent;
+        return fileContent;
     }
 
     generateAuthConfig(
-        input: SupertokensSync.RolePermissionsWritingPreparation
+        input: SupertokensSync.RolePermissionsWritingPreparation,
     ) {
         const tenants = this.createKeysAndValues(input.tenants);
         const roles = this.createKeysAndValues(input.roles);
@@ -140,9 +135,9 @@ export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, 
                                     .toUpperCase()
                                     .replace(
                                         /[^a-zA-Z0-9]/g,
-                                        "_"
+                                        "_",
                                     ) as keyof typeof permissions
-                            ]
+                            ],
                     )
                     .sort((a, b) => a.localeCompare(b)),
             }))
@@ -168,8 +163,76 @@ export const ${this.config.authConfigObjectName} = ${JSON.stringify(authConfig, 
                     ] = permission;
                     return acc;
                 },
-                {} as Record<string, string>
+                {} as Record<string, string>,
             );
         return payload;
+    }
+
+    private isPrettierInstalled(): boolean {
+        try {
+            execSync("npx --no-install prettier --version", {
+                stdio: "ignore",
+            });
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private isBiomeInstalled(): boolean {
+        try {
+            execSync("npx --no-install @biomejs/biome --version", {
+                stdio: "ignore",
+            });
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private format(filePaths: string[]) {
+        if (this.isBiomeInstalled()) {
+            this.formatWithBiome(filePaths);
+            return;
+        }
+        if (this.isPrettierInstalled()) {
+            this.formatWithPrettier(filePaths);
+            return;
+        }
+    }
+
+    private formatWithPrettier(filePaths: string[]) {
+        if (!this.isPrettierInstalled()) {
+            return;
+        }
+
+        for (const filePath of filePaths) {
+            try {
+                execSync(`npx prettier --write "${filePath}"`, {
+                    stdio: "inherit",
+                });
+            } catch (error) {
+                console.error("❌ Prettier formatting failed:", error);
+            }
+        }
+    }
+
+    private formatWithBiome(filePaths: string[]) {
+        if (!this.isBiomeInstalled()) {
+            return;
+        }
+
+        for (const filePath of filePaths) {
+            try {
+                execSync(`npx @biomejs/biome format --write "${filePath}"`, {
+                    stdio: "inherit",
+                });
+            } catch (error) {
+                console.error(
+                    `❌ Biome formatting failed for ${filePath}:`,
+                    error,
+                );
+            }
+        }
     }
 }

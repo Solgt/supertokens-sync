@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import fs from "node:fs";
 import axios from "axios";
 import dotenv from "dotenv";
-import fs from "fs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SupertokensSyncService } from "./SupertokensSyncService";
 import { loadEnvironmentAndVerifyEnvVars } from "./utils";
 
@@ -38,7 +38,7 @@ describe("SupertokensService", () => {
                     apiKey: "AUTH_ST_API_KEY",
                 },
                 authConfigObjectName: "supertokensAuthConfig",
-            })
+            }),
         );
         service = new SupertokensSyncService();
     });
@@ -61,7 +61,7 @@ describe("SupertokensService", () => {
                     headers: {
                         "api-key": "test-api-key-dev",
                     },
-                }
+                },
             );
         });
     });
@@ -102,7 +102,7 @@ describe("SupertokensService", () => {
                         "api-key": "test-api-key-dev",
                         "Content-Type": "application/json; charset=utf-8",
                     },
-                }
+                },
             );
             expect(axios.get).toHaveBeenCalledWith(
                 "https://st-dev.example.com/recipe/role/permissions?role=user",
@@ -111,7 +111,7 @@ describe("SupertokensService", () => {
                         "api-key": "test-api-key-dev",
                         "Content-Type": "application/json; charset=utf-8",
                     },
-                }
+                },
             );
         });
     });

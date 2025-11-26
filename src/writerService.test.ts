@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { SupertokensSync } from "./types";
 import { WriterService } from "./WriterService";
-import { SupertokensSync } from "./types";
 
 vi.mock("fs");
 vi.mock("axios");

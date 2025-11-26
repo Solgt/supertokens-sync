@@ -1,8 +1,10 @@
+/** biome-ignore-all lint/style/useConst: <False alarm by biome?> */
+
 import dotenv from "dotenv";
-import { SupertokensSync } from "./types";
+import type { SupertokensSync } from "./types";
 
 export function loadEnvironmentAndVerifyEnvVars(
-    envKeyNames: SupertokensSync.EnvKeyNames
+    envKeyNames: SupertokensSync.EnvKeyNames,
 ) {
     let ST_API_KEY_DEV;
     let ST_CONNECTION_URI_DEV;
@@ -14,7 +16,7 @@ export function loadEnvironmentAndVerifyEnvVars(
 
     if (!CONNECTION_URI_KEY_NAME || !API_KEY_NAME) {
         console.error(
-            "❌ Error: Invalid environment key names. Expected to have connectionUri and apiKey."
+            "❌ Error: Invalid environment key names. Expected to have connectionUri and apiKey.",
         );
     }
 
@@ -41,21 +43,21 @@ export function loadEnvironmentAndVerifyEnvVars(
         !ST_CONNECTION_URI_PROD
     ) {
         console.error(
-            `❌ Error: Missing environment variables. Expected to have ${envKeyNames.apiKey} and ${envKeyNames.connectionUri} in local .env and .env.production files.`
+            `❌ Error: Missing environment variables. Expected to have ${envKeyNames.apiKey} and ${envKeyNames.connectionUri} in local .env and .env.production files.`,
         );
         process.exit(1);
     }
 
     if (!ST_CONNECTION_URI_DEV.startsWith("https://st-dev")) {
         console.error(
-            "❌ Error: Invalid connection URI for development environment. Expected to start with 'https://st-dev'."
+            "❌ Error: Invalid connection URI for development environment. Expected to start with 'https://st-dev'.",
         );
         process.exit(1);
     }
 
     if (!ST_CONNECTION_URI_PROD.startsWith("https://st-prod")) {
         console.error(
-            "❌ Error: Invalid connection URI for production environment. Expected to start with 'https://st-prod'."
+            "❌ Error: Invalid connection URI for production environment. Expected to start with 'https://st-prod'.",
         );
         process.exit(1);
     }
