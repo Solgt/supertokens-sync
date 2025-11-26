@@ -36,8 +36,7 @@ Also retrieves and compares tenants, but only by ID.
 Expected `.env` and `.env.production` populated with the required keys for
 operation.
 
-If you have a local `.prettierrc`, the script will pick it up and format the
-output according it, otherwise prettier defaults will be used.
+If you have Biome or Prettier installed, it will attempt to format the file.
 
 ## Usage
 
